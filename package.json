@@ -1,5 +1,5 @@
 {
-  "name": "edenjs_notification",
+  "name": "@edenjs/notification",
   "description": "nothing yet",
   "version": "1.0.0",
   "dependencies": {},
