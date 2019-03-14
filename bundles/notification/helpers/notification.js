@@ -18,11 +18,55 @@ class NotificationHelper extends Helper {
     // run super
     super();
 
+    // bind transport
+    this.register = this.register.bind(this);
+    this.transport = this.transport.bind(this);
+
     // create notification logic
     this.notify = {
       user  : this.notifyUser.bind(this),
       users : this.notifyUsers.bind(this),
     };
+
+    // set private methods
+    this.__transports = new Map();
+  }
+
+
+  // ////////////////////////////////////////////////////////////////////////////
+  //
+  // REGISTER FUNCTIONS
+  //
+  // ////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * create notification transport
+   *
+   * @param  {String}   transport
+   * @param  {Function} should
+   * @param  {Function} cb
+   *
+   * @return {*}
+   */
+  register(transport, should, cb) {
+    // create transport
+    this.__transports.set(transport, {
+      cb,
+      should,
+      transport,
+    });
+  }
+
+  /**
+   * gets transport
+   *
+   * @param  {String} transport
+   *
+   * @return {*}
+   */
+  transport(transport) {
+    // return transport
+    return this.__transports.get(transport);
   }
 
 
