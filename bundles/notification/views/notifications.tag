@@ -22,7 +22,7 @@
                     </small>
                     <b class="d-block text-overflow">{ notification.title }</b>
                   </div>
-                  <p class="mb-0">{ notification.body }</p>
+                  <small class="mb-0 d-block">{ notification.body }</small>
                 </div>
               </div>
             </a>
@@ -39,7 +39,18 @@
   
   <script>
     // set notifications
-    this.notifications = this.eden.get('notifications') || [];
+    this.notifications = (this.eden.get('notifications') || []).sort((a, b) => {
+      // do sort
+      if (a.created_at > b.created_at) {
+        return -1;
+      }
+      if (b.created_at > a.created_at) {
+        return 1;
+      }
+      
+      // return 0-
+      return 0;
+    });
     
     // require moment
     const moment = require('moment');
@@ -101,7 +112,21 @@
       // check found
       if (!found) {
         // add
-        this.notifications.unshift(notification);
+        this.notifications.push(notification);
+        
+        // sort
+        this.notifications.sort((a, b) => {
+          // do sort
+          if (a.created_at > b.created_at) {
+            return -1;
+          }
+          if (b.created_at > a.created_at) {
+            return 1;
+          }
+          
+          // return 0-
+          return 0;
+        });
         
         // return update
         return this.update();

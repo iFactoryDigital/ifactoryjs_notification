@@ -512,7 +512,7 @@ class NotificationAdminController extends Controller {
     });
 
     // Set default sort order
-    notificationGrid.sort('created_at', 1);
+    notificationGrid.sort('created_at', -1);
 
     // Return grid
     return notificationGrid;
