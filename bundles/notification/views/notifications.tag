@@ -2,7 +2,7 @@
   <ul class="nav navbar-nav navbar-right">
     <li class="nav-item dropdown">
       <a href="#!" class="nav-link dropdown-toggle mr-2" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-        Notification (<b>2</b>)
+        Notification <span class="badge badge-danger" if={ getUnread() }>{ getUnread().toLocaleString() }</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right dropdown-menu-notifications p-0 border-0">
         <div class="card">
@@ -68,6 +68,63 @@
       // from now
       return images[0];
     }
+    
+    /**
+     * gets unread notifications
+     *
+     * @return {Integer}
+     */
+    getUnread() {
+      // reduce notifications
+      return this.notifications.reduce((accum, notification) => {
+        // add to accum
+        if (!notification.read) accum += 1;
+        
+        // return accum
+        return accum;
+      }, 0);
+    }
+    
+    /**
+     * on notification
+     *
+     * @param  {Object} notification
+     *
+     * @return {*}
+     */
+    onNotification(notification) {
+      // check found
+      const found = this.notifications.find((notif) => notif.id === notification.id);
+      
+      // check found
+      if (!found) {
+        // add
+        this.notifications.unshift(notification);
+        
+        // return update
+        return this.update();
+      }
+      
+      // loop for keys
+      for (const key in notification) {
+        // replace notification key
+        found[key] = notification[key];
+      }
+      
+      // return update
+      this.update();
+    }
+    
+    /**
+     * on mount function
+     */
+    this.on('mount', () => {
+      // check frontend
+      if (!this.eden.frontend) return;
+      
+      // check notification
+      socket.on('notification', this.onNotification);
+    });
     
   </script>
 </notifications>
