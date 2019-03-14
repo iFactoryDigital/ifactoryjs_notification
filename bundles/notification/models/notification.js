@@ -30,6 +30,7 @@ class Notification extends Model {
     // return object
     const sanitised = {
       id         : this.get('_id') ? this.get('_id').toString() : null,
+      read       : this.get('read'),
       created_at : this.get('created_at'),
       updated_at : this.get('updated_at'),
     };

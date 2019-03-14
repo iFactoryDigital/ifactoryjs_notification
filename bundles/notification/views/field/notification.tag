@@ -6,7 +6,7 @@
           { opts.field.label }
           <i if={ !opts.field.label }>Set Label</i>
         </label>
-        <eden-select ref="select" url="/admin/notification/query" required={ opts.field.required } name={ opts.field.uuid } multiple={ opts.field.multiple } label={ opts.field.label || 'Search by Name' } data={ opts.data }>
+        <eden-select ref="select" url="/admin/config/notification/query" required={ opts.field.required } name={ opts.field.uuid } multiple={ opts.field.multiple } label={ opts.field.label || 'Search by Name' } data={ opts.data }>
           <option each={ notification, i in opts.data.value || [] } selected="true" value={ notification.id }>
             { notification.name }
           </option>

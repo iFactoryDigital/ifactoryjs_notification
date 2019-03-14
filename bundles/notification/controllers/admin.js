@@ -20,7 +20,7 @@ const notificationHelper = helper('notification');
  *
  * @acl   admin
  * @fail  next
- * @mount /admin/notification
+ * @mount /admin/config/notification
  */
 class NotificationAdminController extends Controller {
   /**
@@ -59,8 +59,6 @@ class NotificationAdminController extends Controller {
 
   /**
    * build notification admin controller
-   *
-   * @mount /admin/notification
    */
   build() {
     //
@@ -176,6 +174,7 @@ class NotificationAdminController extends Controller {
    * @icon     fa fa-bell
    * @menu     {ADMIN} Notifications
    * @title    Notification Administration
+   * @parent   /admin/config
    * @route    {get} /
    * @layout   admin
    * @priority 10
@@ -446,7 +445,7 @@ class NotificationAdminController extends Controller {
     const notificationGrid = new Grid();
 
     // Set route
-    notificationGrid.route('/admin/notification/grid');
+    notificationGrid.route('/admin/config/notification/grid');
 
     // get form
     const form = await formHelper.get('edenjs.notification');
@@ -476,16 +475,21 @@ class NotificationAdminController extends Controller {
     }));
 
     // add extra columns
-    notificationGrid.column('updated_at', {
+    notificationGrid.column('read', {
+      tag      : 'grid-date',
+      sort     : true,
+      title    : 'Read',
+      priority : 4,
+    }).column('updated_at', {
       tag      : 'grid-date',
       sort     : true,
       title    : 'Updated',
-      priority : 4,
+      priority : 3,
     }).column('created_at', {
       tag      : 'grid-date',
       sort     : true,
       title    : 'Created',
-      priority : 3,
+      priority : 2,
     }).column('actions', {
       tag      : 'notification-actions',
       type     : false,

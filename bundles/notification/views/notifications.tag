@@ -1,6 +1,6 @@
 <notifications>
   <ul class="nav navbar-nav navbar-right">
-    <li class="nav-item dropdown">
+    <li class="nav-item dropdown" ref="dropdown">
       <a href="#!" class="nav-link dropdown-toggle mr-2" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
         Notification <span class="badge badge-danger" if={ getUnread() }>{ getUnread().toLocaleString() }</span>
       </a>
@@ -16,11 +16,11 @@
                   <media-img image={ getImage(notification) } label="2x-sq" class="rounded-circle img-fluid" />
                 </div>
                 <div class="col-10">
-                  <div class="text-overflow d-flex justify-content-between">
-                    <b>{ notification.title }</b>
-                    <small>
+                  <div>
+                    <small class="float-right">
                       { getDate(notification.created_at) }
                     </small>
+                    <b class="d-block text-overflow">{ notification.title }</b>
                   </div>
                   <p class="mb-0">{ notification.body }</p>
                 </div>
@@ -28,7 +28,9 @@
             </a>
           </div>
           <div class="card-footer text-center">
-            SUPPPP
+            <a href="/notification">
+              View All
+            </a>
           </div>
         </div>
       </div>
@@ -124,6 +126,12 @@
       
       // check notification
       socket.on('notification', this.onNotification);
+      
+      // add listener
+      jQuery(this.refs.dropdown).on('shown.bs.dropdown', () => {
+        // reset unread
+        socket.call('notification.read', true);
+      });
     });
     
   </script>

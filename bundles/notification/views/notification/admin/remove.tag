@@ -3,7 +3,7 @@
 
     <admin-header title="Remove Notification">
       <yield to="right">
-        <a href="/admin/notification" class="btn btn-lg btn-primary">
+        <a href="/admin/config/notification" class="btn btn-lg btn-primary">
           Back
         </a>
       </yield>
@@ -11,7 +11,7 @@
     
     <div class="container-fluid">
     
-      <form method="post" action="/admin/notification/{ opts.item.id }/remove">
+      <form method="post" action="/admin/config/notification/{ opts.item.id }/remove">
         <div class="card mb-3">
           <div class="card-body">
             <p>

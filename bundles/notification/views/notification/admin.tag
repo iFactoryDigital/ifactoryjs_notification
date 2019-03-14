@@ -3,7 +3,7 @@
 
     <admin-header title="Manage Notifications">
       <yield to="right">
-        <a href="/admin/notification/create" class="btn btn-lg btn-success">
+        <a href="/admin/config/notification/create" class="btn btn-lg btn-success">
           <i class="fa fa-plus ml-2"></i> Create Notification
         </a>
       </yield>

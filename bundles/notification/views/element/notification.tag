@@ -1,6 +1,6 @@
 <element-notification>
   <span each={ item, i in this.notifications }>
-    <a href="/admin/notification/{ item.id }/update">{ item.name }</a>
+    <a href="/admin/config/notification/{ item.id }/update">{ item.name }</a>
     { i === this.notifications.length - 1 ? '' : ', ' }
   </span>
   

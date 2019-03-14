@@ -46,16 +46,80 @@ class NotificationController extends Controller {
       // notifications
       render.notifications = render.user ? await Promise.all((await Notification.where({
         'user.id' : render.user.id,
-      }).find()).map(notif => notif.sanitise())) : [];
+      }).sort('created_at', -1).limit(10).find()).map(notif => notif.sanitise())) : [];
     });
   }
+
+
+  // ////////////////////////////////////////////////////////////////////////////
+  //
+  // NORMAL METHODS
+  //
+  // ////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * socket listen action
+   *
+   * @param {Request}  req
+   * @param {Response} res
+   *
+   * @route  /
+   * @return {Async}
+   */
+  async indexAction(req, res) {
+    // get notifications
+    const notifications = await Notification.where({
+      'user.id' : req.user.get('_id').toString(),
+    }).find();
+
+    // render notifications
+    res.render('notification', {
+      notifications : await Promise.all(notifications.map(notification => notification.sanitise())),
+    });
+  }
+
+
+  // ////////////////////////////////////////////////////////////////////////////
+  //
+  // NOTIFICATION METHODS
+  //
+  // ////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * socket listen action
+   *
+   * @param  {String} id
+   * @param  {Object} opts
+   *
+   * @call   notification.read
+   * @return {Async}
+   */
+  async readAction(way, opts) {
+    // get notifications
+    const notifications = await Notification.where({
+      read      : null,
+      'user.id' : opts.user.get('_id').toString(),
+    }).find();
+
+    // promise all
+    await Promise.all(notifications.map((notification) => {
+      // set read
+      notification.set('read', new Date());
+
+      // return save
+      return notification.save();
+    }));
+
+    // return true
+    return true;
+  }
+
 
   // ////////////////////////////////////////////////////////////////////////////
   //
   // MODEL LISTEN METHODS
   //
   // ////////////////////////////////////////////////////////////////////////////
-
 
   /**
    * socket listen action

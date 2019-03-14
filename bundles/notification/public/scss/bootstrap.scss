@@ -1,9 +1,11 @@
 
 .dropdown-menu.dropdown-menu-notifications {
-  width : ($spacer * 22);
+  min-width : ($spacer * 22);
 
   .list-group {
     border        : 0;
+    overflow      : auto;
+    max-height    : 75vh;
     border-radius : 0;
 
     .list-group-item {

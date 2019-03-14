@@ -1,5 +1,6 @@
 
 // import dependencies
+const socket = require('socket');
 const Daemon = require('daemon');
 
 // require helpers
@@ -7,9 +8,6 @@ const notificationHelper = helper('notification');
 
 /**
  * extend notification Daemon
- *
- * @cluster back
- * @cluster notification
  *
  * @extends {Daemon}
  */
@@ -32,7 +30,27 @@ class NotificationDaemon extends Daemon {
    * build Notification Daemon
    */
   async build() {
+    // create emit function
+    const emit = async (notification) => {
+      // get user
+      let users = await notification.get('user');
 
+      // check users
+      if (!Array.isArray(users)) users = [users];
+
+      // filter
+      users = users.filter(u => u);
+
+      // sanitise
+      users.forEach(async (user) => {
+        // emit notification
+        socket.user(user, 'notification', await notification.sanitise());
+      });
+    };
+
+    // on update
+    this.eden.post('notification.create', emit);
+    this.eden.post('notification.update', emit);
   }
 }
 
