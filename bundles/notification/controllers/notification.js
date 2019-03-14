@@ -41,7 +41,13 @@ class NotificationController extends Controller {
    * builds notification controller
    */
   build() {
-
+    // on render
+    this.eden.pre('view.compile', async (render) => {
+      // notifications
+      render.notifications = render.user ? await Promise.all((await Notification.where({
+        'user.id' : render.user.id,
+      }).find()).map(notif => notif.sanitise())) : [];
+    });
   }
 
   // ////////////////////////////////////////////////////////////////////////////
