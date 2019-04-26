@@ -2,7 +2,7 @@
   <ul class="nav navbar-nav navbar-right">
     <li class="nav-item dropdown" ref="dropdown">
       <a href="#!" class="nav-link dropdown-toggle mr-2" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-        Notification <span class="badge badge-danger" if={ getUnread() }>{ getUnread().toLocaleString() }</span>
+        <i class="fa fa-bell" /> <span class="badge badge-danger" if={ getUnread() }>{ getUnread().toLocaleString() }</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right dropdown-menu-notifications p-0 border-0">
         <div class="card">
