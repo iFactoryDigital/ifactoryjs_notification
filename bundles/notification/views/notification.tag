@@ -1,6 +1,6 @@
 <notification-page>
   <div class="container my-4">
-    <a each={ notification, i in opts.notifications } href={ notification.url } class="list-group-item list-group-item-action">
+    <a each={ notification, i in props.notifications } href={ notification.url } class="list-group-item list-group-item-action">
       <div class="row">
         <div class="col-1 pr-0">
           <media-img image={ getImage(notification) } label="2x-sq" class="rounded-circle img-fluid" />

@@ -10,10 +10,9 @@ const Notification = model('notification');
 const Block = model('block');
 
 // require helpers
-const formHelper = helper('form');
+const formHelper  = helper('form');
 const fieldHelper = helper('form/field');
 const blockHelper = helper('cms/block');
-const notificationHelper = helper('notification');
 
 /**
  * Build notification controller

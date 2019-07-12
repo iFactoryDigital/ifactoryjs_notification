@@ -1,0 +1,20 @@
+<element-notification>
+  <span each={ (item, i) in this.notifications }>
+    <a href="/admin/config/notification/{ item.id }/update">{ item.name }</a>
+    { i === this.notifications.length - 1 ? '' : ', ' }
+  </span>
+  
+  <script>
+    // export
+    export default class ElementNotifications {
+      /**
+       * on before mount
+       */
+      onBeforeMount(props) {
+        // set notifications
+        this.notifications = (Array.isArray(props.data.value) ? props.data.value : [props.data.value]).filter(v => v);
+      }
+    }
+    
+  </script>
+</element-notification>
