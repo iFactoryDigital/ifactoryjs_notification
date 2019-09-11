@@ -36,7 +36,7 @@
       </div>
     </li>
   </ul>
-  
+
   <script>
     // set notifications
     this.notifications = (this.eden.get('notifications') || []).sort((a, b) => {
@@ -47,11 +47,11 @@
       if (b.created_at > a.created_at) {
         return 1;
       }
-      
+
       // return 0-
       return 0;
     });
-    
+
     // require moment
     const moment = require('moment');
     
@@ -66,7 +66,7 @@
       // from now
       return moment(created_at).fromNow();
     }
-    
+
     /**
      * get date
      *
@@ -77,11 +77,11 @@
     getImage(notification) {
       // set image
       const images = Array.isArray(notification.image) ? notification.image : [notification.image];
-      
+
       // from now
       return images[0];
     }
-    
+
     /**
      * gets unread notifications
      *
@@ -92,12 +92,12 @@
       return this.notifications.reduce((accum, notification) => {
         // add to accum
         if (!notification.read) accum += 1;
-        
+
         // return accum
         return accum;
       }, 0);
     }
-    
+
     /**
      * on notification
      *
@@ -108,12 +108,12 @@
     onNotification(notification) {
       // check found
       const found = this.notifications.find((notif) => notif.id === notification.id);
-      
+
       // check found
       if (!found) {
         // add
         this.notifications.push(notification);
-        
+
         // sort
         this.notifications.sort((a, b) => {
           // do sort
@@ -123,41 +123,41 @@
           if (b.created_at > a.created_at) {
             return 1;
           }
-          
+
           // return 0-
           return 0;
         });
-        
+
         // return update
         return this.update();
       }
-      
+
       // loop for keys
       for (const key in notification) {
         // replace notification key
         found[key] = notification[key];
       }
-      
+
       // return update
       this.update();
     }
-    
+
     /**
      * on mount function
      */
     this.on('mount', () => {
       // check frontend
       if (!this.eden.frontend) return;
-      
+
       // check notification
       socket.on('notification', this.onNotification);
-      
+
       // add listener
       jQuery(this.refs.dropdown).on('shown.bs.dropdown', () => {
         // reset unread
         socket.call('notification.read', true);
       });
     });
-    
+
   </script>
 </notifications>

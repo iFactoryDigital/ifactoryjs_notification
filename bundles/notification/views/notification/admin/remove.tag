@@ -8,9 +8,9 @@
         </a>
       </yield>
     </admin-header>
-    
+
     <div class="container-fluid">
-    
+
       <form method="post" action="/admin/config/notification/{ opts.item.id }/remove">
         <div class="card mb-3">
           <div class="card-body">
@@ -21,7 +21,7 @@
         </div>
         <button type="submit" class="btn btn-lg btn-success">Remove Notification</button>
       </form>
-    
+
     </div>
   </div>
   

@@ -1,6 +1,8 @@
 
 // Require dependencies
 const Grid        = require('grid');
+const tmpl        = require('riot-tmpl');
+const Model       = require('model');
 const config      = require('config');
 const Controller  = require('controller');
 const escapeRegex = require('escape-string-regexp');
@@ -123,6 +125,7 @@ class NotificationAdminController extends Controller {
       // set tag
       field.tag = 'notification';
       field.value = value ? (Array.isArray(value) ? await Promise.all(value.map(item => item.sanitise())) : await value.sanitise()) : null;
+
       // return
       return field;
     }, async (req, field) => {
@@ -154,6 +157,101 @@ class NotificationAdminController extends Controller {
           return old[i];
         }
       }));
+    });
+  }
+
+  /**
+   * setup flow hook
+   *
+   * @pre flow.build
+   */
+  async flowSetupHook(flow) {
+
+    // do initial actions
+    flow.action('notification.trigger', {
+      tag   : 'notification',
+      icon  : 'fa fa-bell',
+      title : 'Trigger Notification',
+    }, (action, render) => {
+
+    }, async (opts, element, data) => {
+      // set config
+      element.config = element.config || {};
+
+      // query for data
+      const User = model('user');
+
+      // clone data
+      const newData = Object.assign({}, data);
+
+      // send model
+      if (newData.model instanceof Model) {
+        // sanitise model
+        newData.model = await newData.model.sanitise();
+      }
+
+      // set values
+      const url = tmpl.tmpl(element.config.url || '', newData);
+      const body = tmpl.tmpl(element.config.body || '', newData);
+      const title = tmpl.tmpl(element.config.title || '', newData);
+
+      // create query
+      let query = User;
+
+      // loop queries
+      (element.config.queries || []).forEach((q) => {
+        // get values
+        const { method, type } = q;
+        let { key, value } = q;
+
+        // data
+        key = tmpl.tmpl(key, newData);
+        value = tmpl.tmpl(value, newData);
+
+        // check type
+        if (type === 'number') {
+          // parse
+          value = parseFloat(value);
+        } else if (type === 'boolean') {
+          // set value
+          value = value.toLowerCase() === 'true';
+        }
+
+        // add to query
+        if (method === 'eq' || !method) {
+          // query
+          query = query.where({
+            [key] : value,
+          });
+        } else if (['gt', 'lt'].includes(method)) {
+          // set gt/lt
+          query = query[method](key, value);
+        } else if (method === 'ne') {
+          // not equal
+          query = query.ne(key, value);
+        }
+      });
+
+      // get alerted users
+      const alertedUsers = await query.find();
+ 
+      // create notifications
+      alertedUsers.forEach((alertedUser) => {
+        // create notification
+        const notification = new Notification({
+          url,
+          body,
+          title,
+          user  : alertedUser,
+          image : newData.model && newData.model.image ? newData.model.image : null,
+        });
+
+        // save
+        notification.save();
+      });
+
+      // return true
+      return true;
     });
   }
 

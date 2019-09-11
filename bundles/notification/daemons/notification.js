@@ -1,7 +1,6 @@
 
 // import dependencies
 const socket = require('socket');
-const config = require('config');
 const Daemon = require('daemon');
 
 /**

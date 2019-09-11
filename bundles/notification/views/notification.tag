@@ -1,6 +1,6 @@
 <notification-page>
   <div class="container my-4">
-    <a each={ notification, i in props.notifications } href={ notification.url } class="list-group-item list-group-item-action">
+    <a each={ notification, i in opts.notifications } href={ notification.url } class="list-group-item list-group-item-action">
       <div class="row">
         <div class="col-1 pr-0">
           <media-img image={ getImage(notification) } label="2x-sq" class="rounded-circle img-fluid" />
@@ -22,7 +22,7 @@
   
     // require moment
     const moment = require('moment');
-  
+
     /**
      * get date
      *
@@ -34,7 +34,7 @@
       // from now
       return moment(created_at).fromNow();
     }
-    
+
     /**
      * get date
      *
@@ -45,10 +45,10 @@
     getImage(notification) {
       // set image
       const images = Array.isArray(notification.image) ? notification.image : [notification.image];
-      
+
       // from now
       return images[0];
     }
-  
+
   </script>
 </notification-page>

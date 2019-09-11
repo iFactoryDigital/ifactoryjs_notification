@@ -14,14 +14,14 @@
       </div>
     </yield>
   </field>
-  
+
   <script>
     // do mixins
     this.mixin('acl');
-    
+
     // set initialized
     this.notifications = opts.data.value || [];
-    
+
     /**
      * return value
      *
@@ -38,8 +38,8 @@
     this.on('mount', () => {
       // check frontend
       if (!this.eden.frontend) return;
-      
+
     });
-    
+
   </script>
 </field-notification>
