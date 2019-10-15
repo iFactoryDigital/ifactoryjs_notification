@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    
+
   </div>
 
   <script>
@@ -34,10 +34,10 @@
     // set type
     this.type    = opts.item.type || 'raised';
     this.preview = true;
-    
+
     // require uuid
     const uuid = require('uuid');
-    
+
     // set placements
     this.positions = opts.positions || opts.fields.map((field) => {
       // return field
@@ -52,7 +52,7 @@
         'children' : []
       };
     });
-    
+
     /**
      * on submit
      *
@@ -80,7 +80,7 @@
       // update view
       this.update();
     }
-    
+
     /**
      * on preview
      *

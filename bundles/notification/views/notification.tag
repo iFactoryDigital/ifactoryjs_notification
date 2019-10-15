@@ -19,7 +19,7 @@
   </div>
 
   <script>
-  
+
     // require moment
     const moment = require('moment');
 

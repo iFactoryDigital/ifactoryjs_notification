@@ -21,7 +21,12 @@
         </label>
         <input class="form-control" ref="url" value={ (opts.element.config || {}).url } type="text" onchange={ onChange } />
       </div>
-      <editor ref="body" label="Notification Body" content={ (opts.element.config || {}).body } />
+      <div class="form-group">
+        <label>
+          Notification Body
+        </label>
+        <input class="form-control" ref="body" value={ (opts.element.config || {}).body } type="text" onchange={ onChange } />
+      </div>
 
       <label class="mt-3">
         Send Notification to Users where:
