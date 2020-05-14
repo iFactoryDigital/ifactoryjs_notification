@@ -12,7 +12,6 @@ const notificationHelper = helper('notification');
 /**
  * Build notification controller
  *
- * @acl   admin
  * @fail  next
  * @mount /notification
  */
@@ -67,10 +66,15 @@ class NotificationController extends Controller {
    * @return {Async}
    */
   async indexAction(req, res) {
+
     // get notifications
     const notifications = await Notification.where({
       'user.id' : req.user.get('_id').toString(),
     }).find();
+
+    // get Layout
+    await this.eden.hook('notification.layout', req);
+    req.layout ? res.locals.layout = req.layout : '';
 
     // render notifications
     res.render('notification', {

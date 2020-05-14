@@ -10,6 +10,7 @@ const escapeRegex = require('escape-string-regexp');
 // Require models
 const Notification = model('notification');
 const Block = model('block');
+const Acl   = model('acl');
 
 // require helpers
 const formHelper  = helper('form');
@@ -184,16 +185,42 @@ class NotificationAdminController extends Controller {
       // clone data
       const newData = Object.assign({}, data);
 
+      // set values
+      let body      = tmpl.tmpl(element.config.body || '', newData);
+      let title     = tmpl.tmpl(element.config.title || '', newData);
+      const url     = tmpl.tmpl(element.config.url || '', newData);
+      const isadmin = tmpl.tmpl(element.config.isadmin || '', newData);
+      const from_   = tmpl.tmpl(element.config.from || '', newData);
+      const in_     = tmpl.tmpl(element.config.in || '', newData);
+      const once    = tmpl.tmpl(element.config.sendonce || '', newData);
+      let addusers = '';
+
+      if (once === 'yes') {
+        const found = await Notification.where({ body : body }).findOne();
+        console.log(found);
+        if (found) return;
+      }
+
+      if (isadmin && isadmin === 'yes') {
+        const adminacl = await Acl.where({name : 'Admin'}).findOne();
+        addusers       = await User.where({'acl.id' : adminacl.get('_id')}).find();
+      }
+
+      if (from_ && in_) {
+        const frommodel = (await newData.model.get(from_) || {});
+        if (!frommodel || Object.keys(frommodel).length === 0) return;
+        const user = await frommodel.get(in_);
+        if (!user || Object.keys(user).length === 0) return;
+        addusers = addusers.concat([user]);
+      }
+
       // send model
       if (newData.model instanceof Model) {
         // sanitise model
         newData.model = await newData.model.sanitise();
+        body          = tmpl.tmpl(element.config.body || '', newData.model);
+        title         = tmpl.tmpl(element.config.title || '', newData.model);
       }
-
-      // set values
-      const url = tmpl.tmpl(element.config.url || '', newData);
-      const body = tmpl.tmpl(element.config.body || '', newData);
-      const title = tmpl.tmpl(element.config.title || '', newData);
 
       // create query
       let query = User;
@@ -233,8 +260,10 @@ class NotificationAdminController extends Controller {
       });
 
       // get alerted users
-      const alertedUsers = await query.find();
- 
+      let alertedUsers = (from_ && in_) ? [] :  await query.find();
+
+      if (addusers && Array.isArray(addusers) && addusers.length > 0) alertedUsers = alertedUsers.concat(addusers);
+
       // create notifications
       alertedUsers.forEach((alertedUser) => {
         // create notification

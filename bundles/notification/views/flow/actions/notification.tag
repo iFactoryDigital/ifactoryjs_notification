@@ -31,6 +31,47 @@
       <label class="mt-3">
         Send Notification to Users where:
       </label>
+
+      <div class="form-group mb-4">
+        <div class="row mb-2">
+          <div class="col-1 pr-0">
+            Admin
+          </div>
+          <div class="col-2 pr-0">
+            <select class="form-control bg-light" ref="isadmin" value={ (opts.element.config || {}).isadmin } onchange={ onChange }>
+              <option value="yes" selected={ (opts.element.config || {}).isadmin === 'yes' }>Yes</option>
+              <option value="no" selected={ (opts.element.config || {}).isadmin === 'no' }>No</option>
+            </select>
+          </div>
+          <div class="col-5 pr-0">
+            Only Send Notification Once ? 
+          </div>
+          <div class="col-2 pr-0">
+            <select class="form-control bg-light" ref="sendonce" value={ (opts.element.config || {}).sendonce } onchange={ onChange }>
+              <option value="yes" selected={ (opts.element.config || {}).sendonce === 'yes' }>Yes</option>
+              <option value="no" selected={ (opts.element.config || {}).sendonce === 'no' }>No</option>
+            </select>
+            </div>
+          </div>
+      </div>
+
+      <div class="form-group mb-4">
+        <div class="row mb-2">
+          <div class="col-2 pr-0">
+            Model Name
+          </div>
+          <div class="col-3 pr-0">
+            <input class="form-control bg-light" ref="from" value={ (opts.element.config || {}).from } type="text" onchange={ onChange } placeholder="From" />
+          </div>
+          <div class="col-2 pr-0">
+            User Model
+          </div>
+          <div class="col-3 pr-0">
+            <input class="form-control bg-light" ref="in" value={ (opts.element.config || {}).in } type="text" onchange={ onChange } placeholder="in" />
+          </div>
+        </div>
+      </div>
+
       <div class="key-value mt-2">
         <div class="row mb-2" each={ set, i in (opts.element.config || {}).queries || [] }>
           <div class="col-3 pr-0">
@@ -42,6 +83,7 @@
               <option value="ne">!=</option>
               <option value="gt">&gt;</option>
               <option value="lt">&lt;</option>
+              <option value="id">ID</option>
             </select>
           </div>
           <div class="col-5 pr-0">
@@ -183,9 +225,13 @@
       if (!opts.element.config) opts.element.config = {};
 
       // config
-      opts.element.config.url = this.refs.url.value;
-      opts.element.config.body = this.refs.body.value;
-      opts.element.config.title = this.refs.title.value;
+      opts.element.config.url      = this.refs.url.value;
+      opts.element.config.body     = this.refs.body.value;
+      opts.element.config.title    = this.refs.title.value;
+      opts.element.config.isadmin  = this.refs.isadmin.value;
+      opts.element.config.from     = this.refs.from.value;
+      opts.element.config.in       = this.refs.in.value;
+      opts.element.config.sendonce = this.refs.sendonce.value;
 
       // set element
       opts.setElement(opts.element.uuid, {
