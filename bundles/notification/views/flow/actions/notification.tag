@@ -71,6 +71,23 @@
           </div>
         </div>
       </div>
+      <div class="form-group mb-4">
+        <div class="row mb-2">
+          <div class="col-2 pr-0">
+            Role
+          </div>
+          <div class="col-3 pr-0">
+            <select class="form-control bg-light" ref="role" value={ (opts.element.config || {}).role } onchange={ onChange }>
+              <option value="" selected={ (opts.element.config || {}).role === '' }>Select Role</option>
+              <option value="Dispatch" selected={ (opts.element.config || {}).role === 'Dispatch' }>Yard Manager</option>
+              <option value="Driver" selected={ (opts.element.config || {}).role === 'Driver' }>Driver</option>
+              <option value="Staff" selected={ (opts.element.config || {}).role === 'Staff' }>Staff</option>
+              <option value="Sales" selected={ (opts.element.config || {}).role === 'Sales' }>Sales</option>
+              <option value="Customer" selected={ (opts.element.config || {}).role === 'Customer' }>Customer</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <div class="key-value mt-2">
         <div class="row mb-2" each={ set, i in (opts.element.config || {}).queries || [] }>
@@ -232,6 +249,7 @@
       opts.element.config.from     = this.refs.from.value;
       opts.element.config.in       = this.refs.in.value;
       opts.element.config.sendonce = this.refs.sendonce.value;
+      opts.element.config.role     = this.refs.role.value;
 
       // set element
       opts.setElement(opts.element.uuid, {

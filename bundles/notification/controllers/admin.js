@@ -193,6 +193,8 @@ class NotificationAdminController extends Controller {
       const from_   = tmpl.tmpl(element.config.from || '', newData);
       const in_     = tmpl.tmpl(element.config.in || '', newData);
       const once    = tmpl.tmpl(element.config.sendonce || '', newData);
+      const role    = tmpl.tmpl(element.config.role || '', newData);
+
       let addusers = '';
 
       if (once === 'yes') {
@@ -204,6 +206,11 @@ class NotificationAdminController extends Controller {
       if (isadmin && isadmin === 'yes') {
         const adminacl = await Acl.where({name : 'Admin'}).findOne();
         addusers       = await User.where({'acl.id' : adminacl.get('_id')}).find();
+      }
+
+      if (role) {
+        const acl = await Acl.where({name : role}).findOne();
+        addusers  = await User.where({'acl.id' : acl.get('_id')}).find();
       }
 
       if (from_ && in_) {
@@ -218,7 +225,7 @@ class NotificationAdminController extends Controller {
       if (newData.model instanceof Model) {
         // sanitise model
         newData.model = await newData.model.sanitise();
-        body          = tmpl.tmpl(element.config.body || '', newData.model);
+        body          = tmpl.tmpl(element.config.body || '', newData.model);        
         title         = tmpl.tmpl(element.config.title || '', newData.model);
       }
 
@@ -260,7 +267,7 @@ class NotificationAdminController extends Controller {
       });
 
       // get alerted users
-      let alertedUsers = (from_ && in_) ? [] :  await query.find();
+      let alertedUsers = (from_ && in_) ? [] :  Array.isArray(element.config.queries) && element.config.queries.length > 0 ? await query.find() : [];
 
       if (addusers && Array.isArray(addusers) && addusers.length > 0) alertedUsers = alertedUsers.concat(addusers);
 
