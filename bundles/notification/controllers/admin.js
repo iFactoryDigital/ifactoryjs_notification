@@ -197,12 +197,6 @@ class NotificationAdminController extends Controller {
 
       let addusers = '';
 
-      if (once === 'yes') {
-        const found = await Notification.where({ body : body }).findOne();
-        console.log(found);
-        if (found) return;
-      }
-
       if (isadmin && isadmin === 'yes') {
         const adminacl = await Acl.where({name : 'Admin'}).findOne();
         addusers       = await User.where({'acl.id' : adminacl.get('_id')}).find();
@@ -227,6 +221,12 @@ class NotificationAdminController extends Controller {
         newData.model = await newData.model.sanitise();
         body          = tmpl.tmpl(element.config.body || '', newData.model);        
         title         = tmpl.tmpl(element.config.title || '', newData.model);
+      }
+
+      if (once === 'yes') {
+        const found = await Notification.where({ body : body }).findOne();
+        console.log(found);
+        if (found) return;
       }
 
       // create query
