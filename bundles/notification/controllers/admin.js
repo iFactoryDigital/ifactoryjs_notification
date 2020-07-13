@@ -225,7 +225,6 @@ class NotificationAdminController extends Controller {
 
       if (once === 'yes') {
         const found = await Notification.where({ body : body }).findOne();
-        console.log(found);
         if (found) return;
       }
 
