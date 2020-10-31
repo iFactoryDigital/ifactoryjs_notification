@@ -45,6 +45,8 @@ class NotificationAdminController extends Controller {
     this.updateSubmitAction = this.updateSubmitAction.bind(this);
     this.removeSubmitAction = this.removeSubmitAction.bind(this);
 
+    this.flowSetupHook = this.flowSetupHook.bind(this);
+
     // bind private methods
     this._grid = this._grid.bind(this);
 
@@ -176,117 +178,136 @@ class NotificationAdminController extends Controller {
     }, (action, render) => {
 
     }, async (opts, element, data) => {
-      // set config
-      element.config = element.config || {};
+      let done        = await this.eden.lock ('flowSetupHook.notification', (1 * 1000));
+      try {
+        // set config
+        element.config = element.config || {};
 
-      // query for data
-      const User = model('user');
+        // query for data
+        const User = model('user');
 
-      // clone data
-      const newData = Object.assign({}, data);
+        // clone data
+        const newData = Object.assign({}, data);
 
-      // set values
-      let body      = tmpl.tmpl(element.config.body || '', newData);
-      let title     = tmpl.tmpl(element.config.title || '', newData);
-      const url     = tmpl.tmpl(element.config.url || '', newData);
-      const isadmin = tmpl.tmpl(element.config.isadmin || '', newData);
-      const from_   = tmpl.tmpl(element.config.from || '', newData);
-      const in_     = tmpl.tmpl(element.config.in || '', newData);
-      const once    = tmpl.tmpl(element.config.sendonce || '', newData);
-      const role    = tmpl.tmpl(element.config.role || '', newData);
+        let content = {
+          body  : '',
+          title : '',
+          url   : '',
+          nofity: true
+        };
 
-      let addusers = '';
+        // set values
+        content.body  = tmpl.tmpl(element.config.body || '', newData);
+        content.title = tmpl.tmpl(element.config.title || '', newData);
+        content.url   = tmpl.tmpl(element.config.url || '', newData);
+        const isadmin = tmpl.tmpl(element.config.isadmin || '', newData);
+        const from_   = tmpl.tmpl(element.config.from || '', newData);
+        const in_     = tmpl.tmpl(element.config.in || '', newData);
+        const once    = tmpl.tmpl(element.config.sendonce || '', newData);
+        const role    = tmpl.tmpl(element.config.role || '', newData);
 
-      if (isadmin && isadmin === 'yes') {
-        const adminacl = await Acl.where({name : 'Admin'}).findOne();
-        addusers       = await User.where({'acl.id' : adminacl.get('_id')}).find();
-      }
+        let addusers = '';
 
-      if (role) {
-        const acl = await Acl.where({name : role}).findOne();
-        addusers  = await User.where({'acl.id' : acl.get('_id')}).find();
-      }
-
-      if (from_ && in_) {
-        const frommodel = (await newData.model.get(from_) || {});
-        if (!frommodel || Object.keys(frommodel).length === 0) return;
-        const user = await frommodel.get(in_);
-        if (!user || Object.keys(user).length === 0) return;
-        addusers = addusers.concat([user]);
-      }
-
-      // send model
-      if (newData.model instanceof Model) {
-        // sanitise model
-        newData.model = await newData.model.sanitise();
-        body          = tmpl.tmpl(element.config.body || '', newData.model);        
-        title         = tmpl.tmpl(element.config.title || '', newData.model);
-      }
-
-      if (once === 'yes') {
-        const found = await Notification.where({ body : body }).findOne();
-        if (found) return;
-      }
-
-      // create query
-      let query = User;
-
-      // loop queries
-      (element.config.queries || []).forEach((q) => {
-        // get values
-        const { method, type } = q;
-        let { key, value } = q;
-
-        // data
-        key = tmpl.tmpl(key, newData);
-        value = tmpl.tmpl(value, newData);
-
-        // check type
-        if (type === 'number') {
-          // parse
-          value = parseFloat(value);
-        } else if (type === 'boolean') {
-          // set value
-          value = value.toLowerCase() === 'true';
+        if (isadmin && isadmin === 'yes') {
+          const adminacl = await Acl.where({name : 'Admin'}).findOne();
+          addusers       = await User.where({'acl.id' : adminacl.get('_id')}).find();
         }
 
-        // add to query
-        if (method === 'eq' || !method) {
-          // query
-          query = query.where({
-            [key] : value,
-          });
-        } else if (['gt', 'lt'].includes(method)) {
-          // set gt/lt
-          query = query[method](key, value);
-        } else if (method === 'ne') {
-          // not equal
-          query = query.ne(key, value);
+        if (role) {
+          const acl = await Acl.where({name : role}).findOne();
+          addusers  = await User.where({'acl.id' : acl.get('_id')}).find();
         }
-      });
 
-      // get alerted users
-      let alertedUsers = (from_ && in_) ? [] :  Array.isArray(element.config.queries) && element.config.queries.length > 0 ? await query.find() : [];
+        if (from_ && in_) {
+          const frommodel = (await newData.model.get(from_) || {});
+          if (!frommodel || Object.keys(frommodel).length === 0) return;
+          const user = await frommodel.get(in_);
+          if (!user || Object.keys(user).length === 0) return;
+          addusers = addusers.concat([user]);
+        }
 
-      if (addusers && Array.isArray(addusers) && addusers.length > 0) alertedUsers = alertedUsers.concat(addusers);
+        // send model
+        if (newData.model instanceof Model) {
+          // sanitise model
+          newData.model = await newData.model.sanitise();
+          content.body  = tmpl.tmpl(element.config.body || '', newData.model);        
+          content.title = tmpl.tmpl(element.config.title || '', newData.model);
+        }
 
-      // create notifications
-      alertedUsers.forEach((alertedUser) => {
-        // create notification
-        const notification = new Notification({
-          url,
-          body,
-          title,
-          user  : alertedUser,
-          image : newData.model && newData.model.image ? newData.model.image : null,
+        await this.eden.hook(`notification.${data.model.constructor.name}`, newData.model, content);
+
+        if (!content.nofity) {
+          return;
+        }
+
+        if (once === 'yes') {
+          const found = await Notification.where({ body : content.body }).findOne();
+          const result = await found;
+          if (found) return;
+        }
+
+        // create query
+        let query = User;
+
+        // loop queries
+        (element.config.queries || []).forEach((q) => {
+          // get values
+          const { method, type } = q;
+          let { key, value } = q;
+
+          // data
+          key = tmpl.tmpl(key, newData);
+          value = tmpl.tmpl(value, newData);
+
+          // check type
+          if (type === 'number') {
+            // parse
+            value = parseFloat(value);
+          } else if (type === 'boolean') {
+            // set value
+            value = value.toLowerCase() === 'true';
+          }
+
+          // add to query
+          if (method === 'eq' || !method) {
+            // query
+            query = query.where({
+              [key] : value,
+            });
+          } else if (['gt', 'lt'].includes(method)) {
+            // set gt/lt
+            query = query[method](key, value);
+          } else if (method === 'ne') {
+            // not equal
+            query = query.ne(key, value);
+          }
         });
 
-        // save
-        notification.save();
-      });
+        // get alerted users
+        let alertedUsers = (from_ && in_) ? [] :  Array.isArray(element.config.queries) && element.config.queries.length > 0 ? await query.find() : [];
 
-      // return true
-      return true;
+        if (addusers && Array.isArray(addusers) && addusers.length > 0) alertedUsers = alertedUsers.concat(addusers);
+        
+        // create notifications
+        (await Promise.all(await alertedUsers.map(async (alertedUser) => {
+          // create notification
+          const notification = new Notification({
+            url   : content.url,
+            body  : content.body,
+            title : content.title,
+            user  : alertedUser,
+            image : newData.model && newData.model.image ? newData.model.image : null,
+          });
+
+          // save
+          await notification.save();
+        }))).filter(t=>t);
+        done();
+        // return true
+        return true;
+      } catch (e) {
+        done ();
+      }
     });
   }
 
